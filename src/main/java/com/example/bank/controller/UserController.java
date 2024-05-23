@@ -4,6 +4,7 @@ import com.example.bank.dto.AddDeleteContactInfoRequest;
 import com.example.bank.dto.RegisterUserRequest;
 import com.example.bank.dto.UpdateContactInfoRequest;
 import com.example.bank.model.BankUser;
+import com.example.bank.service.TransactionService;
 import com.example.bank.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -13,6 +14,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +24,7 @@ import java.util.List;
 @RequestMapping("/api/users")
 public class UserController {
     private final UserService userService;
+    private final TransactionService transactionService;
 
     @GetMapping
     public ResponseEntity<List<BankUser>> getAllUsers() {
@@ -64,5 +67,12 @@ public class UserController {
         }
 
         return ResponseEntity.ok(userService.searchUsers(birthDate, phone, fullName, email, PageRequest.of(page, size, Sort.by(orders))));
+    }
+
+    @PatchMapping("/{userIdSender}/transfer-to/{userIdReceiver}/{amount}")
+    public ResponseEntity<BankUser> transfer(@PathVariable Long userIdSender,
+                                             @PathVariable Long userIdReceiver,
+                                             @PathVariable BigDecimal amount) {
+        return ResponseEntity.ok(transactionService.transfer(userIdSender, userIdReceiver, amount));
     }
 }

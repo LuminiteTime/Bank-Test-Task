@@ -19,7 +19,7 @@ public class TransactionService {
 
     //TODO: Check if the sender is authorized.
     @Transactional
-    public void transfer(Long senderId, Long receiverId, BigDecimal amount) {
+    public BankUser transfer(Long senderId, Long receiverId, BigDecimal amount) {
         BankUser sender = userRepository.findById(senderId)
                 .orElseThrow(() -> new IllegalArgumentException("Sender not found"));
         BankUser receiver = userRepository.findById(receiverId)
@@ -37,5 +37,7 @@ public class TransactionService {
 
         accountRepository.save(senderAccount);
         accountRepository.save(receiverAccount);
+
+        return sender;
     }
 }
