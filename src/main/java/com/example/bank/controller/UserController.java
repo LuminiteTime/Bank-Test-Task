@@ -7,6 +7,7 @@ import com.example.bank.model.BankUser;
 import com.example.bank.service.TransactionService;
 import com.example.bank.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -19,6 +20,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/users")
@@ -28,26 +30,31 @@ public class UserController {
 
     @GetMapping
     public ResponseEntity<List<BankUser>> getAllUsers() {
+        log.debug("Retrieving all users...");
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
     @PostMapping("/register")
     public ResponseEntity<BankUser> registerUser(@RequestBody RegisterUserRequest request) {
+        log.debug("Registering a new user...");
         return ResponseEntity.ok(userService.registerUser(request));
     }
 
     @DeleteMapping("/{userId}/contact-info")
     public ResponseEntity<BankUser> deleteContactInfo(@PathVariable Long userId, @RequestBody AddDeleteContactInfoRequest request) {
+        log.debug("Deleting some contact info for user {}...", userId);
         return ResponseEntity.ok(userService.deleteContactInfo(userId, request));
     }
 
     @PatchMapping("/{userId}/update-contact-info")
     public ResponseEntity<BankUser> updateContactInfo(@PathVariable Long userId, @RequestBody UpdateContactInfoRequest request) {
+        log.debug("Updating contact info for user {}...", userId);
         return ResponseEntity.ok(userService.updateContactInfo(userId, request));
     }
 
     @PatchMapping("/{userId}/add-contact-info")
     public ResponseEntity<BankUser> addContactInfo(@PathVariable Long userId, @RequestBody AddDeleteContactInfoRequest request) {
+        log.debug("Adding new contact info for user {}...", userId);
         return ResponseEntity.ok(userService.addContactInfo(userId, request));
     }
 
@@ -65,7 +72,7 @@ public class UserController {
             String[] _sort = sortOrder.split(",");
             orders.add(new Sort.Order(Sort.Direction.fromString(_sort[1]), _sort[0]));
         }
-
+        log.debug("Searching for users with birthDate={}, phone={}, fullName={}, email={}", birthDate, phone, fullName, email);
         return ResponseEntity.ok(userService.searchUsers(birthDate, phone, fullName, email, PageRequest.of(page, size, Sort.by(orders))));
     }
 
@@ -73,6 +80,7 @@ public class UserController {
     public ResponseEntity<BankUser> transfer(@PathVariable Long userIdSender,
                                              @PathVariable Long userIdReceiver,
                                              @PathVariable BigDecimal amount) {
+        log.debug("Transferring {} from user {} to user {}...", amount, userIdSender, userIdReceiver);
         return ResponseEntity.ok(transactionService.transfer(userIdSender, userIdReceiver, amount));
     }
 }

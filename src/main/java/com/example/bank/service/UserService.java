@@ -10,6 +10,7 @@ import com.example.bank.repository.AccountRepository;
 import com.example.bank.repository.UserRepository;
 import com.example.bank.utils.UserSpecification;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class UserService {
@@ -48,7 +50,11 @@ public class UserService {
                 .build();
         newUser.setAccount(account);
         accountRepository.save(newUser.getAccount());
-        return userRepository.save(newUser);
+        userRepository.save(newUser);
+
+        log.info("User with id {} saved", newUser.getId());
+
+        return newUser;
     }
 
     public BankUser addContactInfo(Long userId, AddDeleteContactInfoRequest request) {
@@ -60,6 +66,7 @@ public class UserService {
                 userRepository.findByPhone(phone)
                         .ifPresent(u -> {
                             if (!u.getId().equals(userId)) {
+                                log.warn("User with phone {} already exists.", phone);
                                 throw new IllegalArgumentException("User with phone " + phone + " already exists.");
                             }
                         });
@@ -72,6 +79,7 @@ public class UserService {
                 userRepository.findByEmail(email)
                         .ifPresent(u -> {
                             if (!u.getId().equals(userId)) {
+                                log.warn("User with email {} already exists.", email);
                                 throw new IllegalArgumentException("User with email " + email + " already exists.");
                             }
                         });
@@ -79,7 +87,11 @@ public class UserService {
             }
         }
 
-        return userRepository.save(user);
+        userRepository.save(user);
+
+        log.info("New contact info for user {} is added", userId);
+
+        return user;
     }
 
     public BankUser updateContactInfo(Long userId, UpdateContactInfoRequest request) {
@@ -89,12 +101,14 @@ public class UserService {
         if (request.getPhoneNumbers() != null) {
             for (String phoneToChange: request.getPhoneNumbers().keySet()) {
                 if (!user.getPhoneNumbers().contains(phoneToChange)) {
+                    log.warn("User {} does not have phone {}", userId, phoneToChange);
                     throw new IllegalArgumentException("User " + userId + " does not have phone " + phoneToChange);
                 }
                 String newPhone = request.getPhoneNumbers().get(phoneToChange);
                 userRepository.findByPhone(newPhone)
                         .ifPresent(u -> {
                             if (!u.getId().equals(userId)) {
+                                log.warn("User with phone {} already exists.", newPhone);
                                 throw new IllegalArgumentException("User with phone " + request.getPhoneNumbers().get(phoneToChange) + " already exists.");
                             }
                         });
@@ -106,12 +120,14 @@ public class UserService {
         if (request.getEmailAddresses() != null) {
             for (String emailToChange: request.getEmailAddresses().keySet()) {
                 if (!user.getEmailAddresses().contains(emailToChange)) {
+                    log.warn("User {} does not have email {}", userId, emailToChange);
                     throw new IllegalArgumentException("User " + userId + " does not have email " + emailToChange);
                 }
                 String newEmail = request.getEmailAddresses().get(emailToChange);
                 userRepository.findByEmail(newEmail)
                         .ifPresent(u -> {
                             if (!u.getId().equals(userId)) {
+                                log.warn("User with email {} already exists.", newEmail);
                                 throw new IllegalArgumentException("User with email " + request.getEmailAddresses().get(emailToChange) + " already exists.");
                             }
                         });
@@ -120,7 +136,11 @@ public class UserService {
             }
         }
 
-        return userRepository.save(user);
+        userRepository.save(user);
+
+        log.info("Contact info for user {} is updated", userId);
+
+        return user;
     }
 
     public BankUser deleteContactInfo(Long userId, AddDeleteContactInfoRequest request) {
@@ -130,9 +150,11 @@ public class UserService {
         if (request.getPhoneNumbers() != null) {
             for (String phone: request.getPhoneNumbers()) {
                 if (!user.getPhoneNumbers().contains(phone)) {
+                    log.warn("User {} does not have phone {}", userId, phone);
                     throw new IllegalArgumentException("User " + userId + " does not have phone " + request.getPhoneNumbers());
                 }
                 if (user.getPhoneNumbers().size() == 1) {
+                    log.warn("User {} must have at least one phone number", userId);
                     throw new IllegalArgumentException("User " + userId + " must have at least one phone number");
                 }
                 user.removePhone(phone);
@@ -141,16 +163,22 @@ public class UserService {
         if (request.getEmailAddresses() != null) {
             for (String email: request.getEmailAddresses()) {
                 if (!user.getEmailAddresses().contains(email)) {
+                    log.warn("User {} does not have email {}", userId, email);
                     throw new IllegalArgumentException("User " + userId + " does not have email " + request.getEmailAddresses());
                 }
                 if (user.getEmailAddresses().size() == 1) {
+                    log.warn("User {} must have at least one email address", userId);
                     throw new IllegalArgumentException("User " + userId + " must have at least one email address");
                 }
                 user.removeEmail(email);
             }
         }
 
-        return userRepository.save(user);
+        userRepository.save(user);
+
+        log.info("Some contact info for user {} is deleted", userId);
+
+        return user;
     }
 
     public List<BankUser> getAllUsers() {

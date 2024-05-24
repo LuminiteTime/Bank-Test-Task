@@ -5,11 +5,13 @@ import com.example.bank.model.BankUser;
 import com.example.bank.repository.AccountRepository;
 import com.example.bank.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 
+@Slf4j
 @RequiredArgsConstructor
 @Service
 public class TransactionService {
@@ -37,6 +39,8 @@ public class TransactionService {
 
         accountRepository.save(senderAccount);
         accountRepository.save(receiverAccount);
+
+        log.info("Transaction completed: {} transferred from {} to {}", amount, senderId, receiverId);
 
         return sender;
     }
