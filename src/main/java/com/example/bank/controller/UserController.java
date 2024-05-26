@@ -1,12 +1,12 @@
 package com.example.bank.controller;
 
-import com.example.bank.dto.AddDeleteContactInfoRequest;
-import com.example.bank.dto.RegisterUserRequest;
-import com.example.bank.dto.UpdateContactInfoRequest;
+import com.example.bank.dto.*;
 import com.example.bank.model.BankUser;
 import com.example.bank.service.TransactionService;
-import com.example.bank.service.UserService;
+import com.example.bank.service.BankUserService;
+import com.example.bank.utils.MappingUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -19,40 +19,40 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
-    private final UserService userService;
+    private final BankUserService bankUserService;
     private final TransactionService transactionService;
 
     @GetMapping
-    public ResponseEntity<List<BankUser>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
-    }
-
-    @PostMapping("/register")
-    public ResponseEntity<BankUser> registerUser(@RequestBody RegisterUserRequest request) {
-        return ResponseEntity.ok(userService.registerUser(request));
+    public ResponseEntity<List<BankUserDTO>> getAllUsers() {
+        log.debug("Retrieving all users...");
+        return ResponseEntity.ok(bankUserService.getAllUsers().stream().map(MappingUtils::mapToBankUserDTO).toList());
     }
 
     @DeleteMapping("/{userId}/contact-info")
-    public ResponseEntity<BankUser> deleteContactInfo(@PathVariable Long userId, @RequestBody AddDeleteContactInfoRequest request) {
-        return ResponseEntity.ok(userService.deleteContactInfo(userId, request));
+    public ResponseEntity<BankUserDTO> deleteContactInfo(@PathVariable Long userId, @RequestBody AddDeleteContactInfoRequest request) {
+        log.debug("Deleting some contact info for user {}...", userId);
+        return ResponseEntity.ok(MappingUtils.mapToBankUserDTO(bankUserService.deleteContactInfo(userId, request)));
     }
 
     @PatchMapping("/{userId}/update-contact-info")
-    public ResponseEntity<BankUser> updateContactInfo(@PathVariable Long userId, @RequestBody UpdateContactInfoRequest request) {
-        return ResponseEntity.ok(userService.updateContactInfo(userId, request));
+    public ResponseEntity<BankUserDTO> updateContactInfo(@PathVariable Long userId, @RequestBody UpdateContactInfoRequest request) {
+        log.debug("Updating contact info for user {}...", userId);
+        return ResponseEntity.ok(MappingUtils.mapToBankUserDTO(bankUserService.updateContactInfo(userId, request)));
     }
 
     @PatchMapping("/{userId}/add-contact-info")
-    public ResponseEntity<BankUser> addContactInfo(@PathVariable Long userId, @RequestBody AddDeleteContactInfoRequest request) {
-        return ResponseEntity.ok(userService.addContactInfo(userId, request));
+    public ResponseEntity<BankUserDTO> addContactInfo(@PathVariable Long userId, @RequestBody AddDeleteContactInfoRequest request) {
+        log.debug("Adding new contact info for user {}...", userId);
+        return ResponseEntity.ok(MappingUtils.mapToBankUserDTO(bankUserService.addContactInfo(userId, request)));
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Page<BankUser>> searchUsers(
+    public ResponseEntity<Page<BankUserDTO>> searchUsers(
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate birthDate,
             @RequestParam(required = false) String phone,
             @RequestParam(required = false) String fullName,
@@ -65,14 +65,16 @@ public class UserController {
             String[] _sort = sortOrder.split(",");
             orders.add(new Sort.Order(Sort.Direction.fromString(_sort[1]), _sort[0]));
         }
-
-        return ResponseEntity.ok(userService.searchUsers(birthDate, phone, fullName, email, PageRequest.of(page, size, Sort.by(orders))));
+        log.debug("Searching for users with birthDate={}, phone={}, fullName={}, email={}", birthDate, phone, fullName, email);
+        Page<BankUser> users = bankUserService.searchUsers(birthDate, phone, fullName, email, PageRequest.of(page, size, Sort.by(orders)));
+        return ResponseEntity.ok(users.map(MappingUtils::mapToBankUserDTO));
     }
 
     @PatchMapping("/{userIdSender}/transfer-to/{userIdReceiver}/{amount}")
-    public ResponseEntity<BankUser> transfer(@PathVariable Long userIdSender,
+    public ResponseEntity<BankUserDTO> transfer(@PathVariable Long userIdSender,
                                              @PathVariable Long userIdReceiver,
                                              @PathVariable BigDecimal amount) {
+        log.debug("Transferring {} from user {} to user {}...", amount, userIdSender, userIdReceiver);
         return ResponseEntity.ok(transactionService.transfer(userIdSender, userIdReceiver, amount));
     }
 }

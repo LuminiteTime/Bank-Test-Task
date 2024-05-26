@@ -1,0 +1,278 @@
+openapi: 3.0.1
+info:
+  title: Bank API
+  description: API for a bank system
+  contact:
+    name: Mikhail Trifonov
+    email: trifonov2812@gmail.com
+  version: 0.0.1
+tags:
+  - name: User Controller
+    description: Operations with users
+paths:
+  /api/users:
+    get:
+      tags:
+        - User Controller
+      summary: Retrieve all users
+      description: Allows to retrieve all users
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BankUserDTO'
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                internalServerError:
+                  value:
+                    message: "Internal server error"
+                    status: 500
+    post:
+      tags:
+        - User Controller
+      summary: Register a new user
+      description: Allows to register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterUserRequest'
+      responses:
+        201:
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankUserDTO'
+        400:
+          description: Bad request, invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                badRequest:
+                  value:
+                    message: "Bad request, invalid input"
+                    status: 400
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                internalServerError:
+                  value:
+                    message: "Internal server error"
+                    status: 500
+  /api/users/{userId}/contact-info:
+    delete:
+      tags:
+        - User Controller
+      summary: Delete some contact info for a user
+      description: Allows to delete phone number(s) and/or email(s) for a user
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          description: User ID
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BankUserDTO'
+      responses:
+        400:
+          description: Bad request, invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                badRequest:
+                  value:
+                    message: "Bad request, invalid input"
+                    status: 400
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                internalServerError:
+                  value:
+                    message: "Internal server error"
+                    status: 500
+  /api/users/search:
+    get:
+      tags:
+        - User Controller
+      summary: Search for users
+      description: Allows to search for users with the specified parameters
+      parameters:
+        - in: query
+          name: birthDate
+          schema:
+            type: string
+            format: date
+          description: The birth date of the user to search for
+        - in: query
+          name: phone
+          schema:
+            type: string
+          description: The phone number of the user to search for
+        - in: query
+          name: fullName
+          schema:
+            type: string
+          description: The full name of the user to search for
+        - in: query
+          name: email
+          schema:
+            type: string
+          description: The email of the user to search for
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 0
+          description: The page number to retrieve
+        - in: query
+          name: size
+          schema:
+            type: integer
+            default: 10
+          description: The number of users to retrieve per page
+        - in: query
+          name: sort
+          schema:
+            type: array
+            items:
+              type: string
+            default: [ "id,asc" ]
+          description: The sorting criteria
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  content:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/BankUserDTO'
+                  pageable:
+                    type: object
+        400:
+          description: Bad request, invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                badRequest:
+                  value:
+                    message: "Bad request, invalid input"
+                    status: 400
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                internalServerError:
+                  value:
+                    message: "Internal server error"
+                    status: 500
+components:
+  schemas:
+    BankUserDTO:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+          description: Id of the user
+        fullName:
+          type: string
+          description: Full name of the user
+        birthDate:
+          type: string
+          format: date
+          description: Birth date of the user
+        phone:
+          type: array
+          items:
+            type: string
+          description: Phone numbers of the user
+        email:
+          type: array
+          items:
+            type: string
+          description: Emails of the user
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          description: Error message
+        status:
+          type: integer
+          format: int32
+          description: Error status code
+      description: Error response DTO
+    RegisterUserRequest:
+      type: object
+      properties:
+        login:
+          type: string
+          description: Login of the user
+        password:
+          type: string
+          description: Password of the user
+        fullName:
+          type: string
+          description: Full name of the user
+        birthDate:
+          type: string
+          format: date
+          description: Birth date of the user
+        initialBalance:
+          type: number
+          format: big decimal
+          description: Initial balance of the user
+        phone:
+          type: array
+          items:
+            type: string
+          description: Phone number of the user
+        email:
+          type: array
+          items:
+            type: string
+          description: Email of the user
+      required:
+        - login
+        - password
+        - initialBalance
+        - phone
+        - email
