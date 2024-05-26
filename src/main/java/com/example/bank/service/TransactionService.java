@@ -1,9 +1,11 @@
 package com.example.bank.service;
 
+import com.example.bank.dto.BankUserDTO;
 import com.example.bank.model.Account;
 import com.example.bank.model.BankUser;
 import com.example.bank.repository.AccountRepository;
 import com.example.bank.repository.UserRepository;
+import com.example.bank.repository.BankUserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -23,8 +25,10 @@ public class TransactionService {
     @Transactional
     public BankUser transfer(Long senderId, Long receiverId, BigDecimal amount) {
         BankUser sender = userRepository.findById(senderId)
+    public BankUserDTO transfer(Long senderId, Long receiverId, BigDecimal amount) {
+        BankUser sender = bankUserRepository.findById(senderId)
                 .orElseThrow(() -> new IllegalArgumentException("Sender not found"));
-        BankUser receiver = userRepository.findById(receiverId)
+        BankUser receiver = bankUserRepository.findById(receiverId)
                 .orElseThrow(() -> new IllegalArgumentException("Receiver not found"));
 
         Account senderAccount = sender.getAccount();
