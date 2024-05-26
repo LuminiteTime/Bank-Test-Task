@@ -1,12 +1,9 @@
 package com.example.bank.controller;
 
-import com.example.bank.dto.AddDeleteContactInfoRequest;
-import com.example.bank.dto.BankUserDTO;
-import com.example.bank.dto.RegisterUserRequest;
-import com.example.bank.dto.UpdateContactInfoRequest;
+import com.example.bank.dto.*;
 import com.example.bank.model.BankUser;
 import com.example.bank.service.TransactionService;
-import com.example.bank.service.UserService;
+import com.example.bank.service.BankUserService;
 import com.example.bank.utils.MappingUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +24,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
-    private final UserService userService;
+    private final BankUserService bankUserService;
     private final TransactionService transactionService;
 
     @GetMapping
@@ -45,19 +42,19 @@ public class UserController {
     @DeleteMapping("/{userId}/contact-info")
     public ResponseEntity<BankUserDTO> deleteContactInfo(@PathVariable Long userId, @RequestBody AddDeleteContactInfoRequest request) {
         log.debug("Deleting some contact info for user {}...", userId);
-        return ResponseEntity.ok(MappingUtils.mapToBankUserDTO(userService.deleteContactInfo(userId, request)));
+        return ResponseEntity.ok(MappingUtils.mapToBankUserDTO(bankUserService.deleteContactInfo(userId, request)));
     }
 
     @PatchMapping("/{userId}/update-contact-info")
     public ResponseEntity<BankUserDTO> updateContactInfo(@PathVariable Long userId, @RequestBody UpdateContactInfoRequest request) {
         log.debug("Updating contact info for user {}...", userId);
-        return ResponseEntity.ok(MappingUtils.mapToBankUserDTO(userService.updateContactInfo(userId, request)));
+        return ResponseEntity.ok(MappingUtils.mapToBankUserDTO(bankUserService.updateContactInfo(userId, request)));
     }
 
     @PatchMapping("/{userId}/add-contact-info")
     public ResponseEntity<BankUserDTO> addContactInfo(@PathVariable Long userId, @RequestBody AddDeleteContactInfoRequest request) {
         log.debug("Adding new contact info for user {}...", userId);
-        return ResponseEntity.ok(MappingUtils.mapToBankUserDTO(userService.addContactInfo(userId, request)));
+        return ResponseEntity.ok(MappingUtils.mapToBankUserDTO(bankUserService.addContactInfo(userId, request)));
     }
 
     @GetMapping("/search")
@@ -75,7 +72,7 @@ public class UserController {
             orders.add(new Sort.Order(Sort.Direction.fromString(_sort[1]), _sort[0]));
         }
         log.debug("Searching for users with birthDate={}, phone={}, fullName={}, email={}", birthDate, phone, fullName, email);
-        Page<BankUser> users = userService.searchUsers(birthDate, phone, fullName, email, PageRequest.of(page, size, Sort.by(orders)));
+        Page<BankUser> users = bankUserService.searchUsers(birthDate, phone, fullName, email, PageRequest.of(page, size, Sort.by(orders)));
         return ResponseEntity.ok(users.map(MappingUtils::mapToBankUserDTO));
     }
 

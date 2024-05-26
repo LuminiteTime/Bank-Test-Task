@@ -42,6 +42,6 @@ public class TransactionService {
 
         log.info("Transaction completed: {} transferred from {} to {}", amount, senderId, receiverId);
 
-        return sender;
+        return MappingUtils.mapToBankUserDTO(sender);
     }
 }

@@ -7,7 +7,8 @@ import com.example.bank.exception.UserNotFoundException;
 import com.example.bank.model.Account;
 import com.example.bank.model.BankUser;
 import com.example.bank.repository.AccountRepository;
-import com.example.bank.repository.UserRepository;
+import com.example.bank.repository.BankUserRepository;
+import com.example.bank.utils.MappingUtils;
 import com.example.bank.utils.UserSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,14 +26,19 @@ import java.util.Set;
 @Service
 public class UserService {
     private final UserRepository userRepository;
+public class BankUserService {
+    private final BankUserRepository bankUserRepository;
     private final AccountRepository accountRepository;
 
     public BankUser registerUser(RegisterUserRequest request) {
         userRepository.findByLogin(request.getLogin())
                 .ifPresent(u -> new IllegalArgumentException("User with login " + request.getLogin() + " already exists."));
         userRepository.findByPhone(request.getPhone())
+        bankUserRepository.findByLogin(request.getUsername())
+                .ifPresent(u -> new IllegalArgumentException("User with login " + request.getUsername() + " already exists."));
+        bankUserRepository.findByPhone(request.getPhone())
                 .ifPresent(u -> new IllegalArgumentException("User with phone " + request.getPhone() + " already exists."));
-        userRepository.findByEmail(request.getEmail()).
+        bankUserRepository.findByEmail(request.getEmail()).
                 ifPresent(u -> new IllegalArgumentException("User with email " + request.getEmail() + " already exists."));
 
         BankUser newUser = BankUser.builder()
@@ -50,7 +56,7 @@ public class UserService {
                 .build();
         newUser.setAccount(account);
         accountRepository.save(newUser.getAccount());
-        userRepository.save(newUser);
+        bankUserRepository.save(newUser);
 
         log.info("User with id {} saved", newUser.getId());
 
@@ -58,12 +64,12 @@ public class UserService {
     }
 
     public BankUser addContactInfo(Long userId, AddDeleteContactInfoRequest request) {
-        BankUser user = userRepository.findById(userId)
+        BankUser user = bankUserRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
         if (request.getPhoneNumbers() != null) {
             for (String phone: request.getPhoneNumbers()) {
-                userRepository.findByPhone(phone)
+                bankUserRepository.findByPhone(phone)
                         .ifPresent(u -> {
                             if (!u.getId().equals(userId)) {
                                 log.warn("User with phone {} already exists.", phone);
@@ -76,7 +82,7 @@ public class UserService {
 
         if (request.getEmailAddresses() != null) {
             for (String email: request.getEmailAddresses()) {
-                userRepository.findByEmail(email)
+                bankUserRepository.findByEmail(email)
                         .ifPresent(u -> {
                             if (!u.getId().equals(userId)) {
                                 log.warn("User with email {} already exists.", email);
@@ -87,7 +93,7 @@ public class UserService {
             }
         }
 
-        userRepository.save(user);
+        bankUserRepository.save(user);
 
         log.info("New contact info for user {} is added", userId);
 
@@ -95,7 +101,7 @@ public class UserService {
     }
 
     public BankUser updateContactInfo(Long userId, UpdateContactInfoRequest request) {
-        BankUser user = userRepository.findById(userId)
+        BankUser user = bankUserRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
         if (request.getPhoneNumbers() != null) {
@@ -105,7 +111,7 @@ public class UserService {
                     throw new IllegalArgumentException("User " + userId + " does not have phone " + phoneToChange);
                 }
                 String newPhone = request.getPhoneNumbers().get(phoneToChange);
-                userRepository.findByPhone(newPhone)
+                bankUserRepository.findByPhone(newPhone)
                         .ifPresent(u -> {
                             if (!u.getId().equals(userId)) {
                                 log.warn("User with phone {} already exists.", newPhone);
@@ -124,7 +130,7 @@ public class UserService {
                     throw new IllegalArgumentException("User " + userId + " does not have email " + emailToChange);
                 }
                 String newEmail = request.getEmailAddresses().get(emailToChange);
-                userRepository.findByEmail(newEmail)
+                bankUserRepository.findByEmail(newEmail)
                         .ifPresent(u -> {
                             if (!u.getId().equals(userId)) {
                                 log.warn("User with email {} already exists.", newEmail);
@@ -136,7 +142,7 @@ public class UserService {
             }
         }
 
-        userRepository.save(user);
+        bankUserRepository.save(user);
 
         log.info("Contact info for user {} is updated", userId);
 
@@ -144,7 +150,7 @@ public class UserService {
     }
 
     public BankUser deleteContactInfo(Long userId, AddDeleteContactInfoRequest request) {
-        BankUser user = userRepository.findById(userId)
+        BankUser user = bankUserRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(userId));
 
         if (request.getPhoneNumbers() != null) {
@@ -174,7 +180,7 @@ public class UserService {
             }
         }
 
-        userRepository.save(user);
+        bankUserRepository.save(user);
 
         log.info("Some contact info for user {} is deleted", userId);
 
@@ -182,10 +188,15 @@ public class UserService {
     }
 
     public List<BankUser> getAllUsers() {
-        return userRepository.findAll();
+        return bankUserRepository.findAll();
     }
 
     public Page<BankUser> searchUsers(LocalDate birthDate, String phone, String fullName, String email, Pageable pageable) {
-        return userRepository.findAll(UserSpecification.filterUsers(birthDate, phone, fullName, email), pageable);
+        return bankUserRepository.findAll(UserSpecification.filterUsers(birthDate, phone, fullName, email), pageable);
+    }
+
+    public BankUserDTO getUserById(Long userId) {
+        return MappingUtils.mapToBankUserDTO(bankUserRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException(userId)));
     }
 }
