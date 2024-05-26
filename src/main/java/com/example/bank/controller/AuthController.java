@@ -9,6 +9,7 @@ import com.example.bank.repository.UserRepository;
 import com.example.bank.security.JwtGenerator;
 import com.example.bank.service.BankUserService;
 import com.example.bank.utils.MappingUtils;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -39,7 +40,7 @@ public class AuthController {
     private final JwtGenerator tokenGenerator;
 
     @PostMapping("/register")
-    public ResponseEntity<BankUserDTO> registerUser(@RequestBody RegisterUserRequest request) {
+    public ResponseEntity<BankUserDTO> registerUser(@Valid @RequestBody RegisterUserRequest request) {
 
         if (Boolean.TRUE.equals(userRepository.existsByUsername(request.getUsername()))) {
             throw new IllegalArgumentException("User with login " + request.getUsername() + " already exists.");
@@ -56,7 +57,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> loginUser(@RequestBody LoginRequest request) {
+    public ResponseEntity<AuthResponse> loginUser(@Valid @RequestBody LoginRequest request) {
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
