@@ -18,10 +18,9 @@ import java.math.BigDecimal;
 @Service
 public class TransactionService {
 
-    private final UserRepository userRepository;
+    private final BankUserRepository bankUserRepository;
     private final AccountRepository accountRepository;
 
-    //TODO: Check if the sender is authorized.
     @Transactional
     public BankUserDTO transfer(Long senderId, Long receiverId, BigDecimal amount) {
         BankUser sender = bankUserRepository.findById(senderId)
