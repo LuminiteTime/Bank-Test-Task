@@ -23,7 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/users")
-public class UserController {
+public class BankUserController {
     private final BankUserService bankUserService;
     private final TransactionService transactionService;
 
@@ -34,19 +34,22 @@ public class UserController {
     }
 
     @DeleteMapping("/{userId}/contact-info")
-    public ResponseEntity<BankUserDTO> deleteContactInfo(@PathVariable Long userId, @RequestBody AddDeleteContactInfoRequest request) {
+    public ResponseEntity<BankUserDTO> deleteContactInfo(@PathVariable Long userId,
+                                                         @RequestBody AddDeleteContactInfoRequest request) {
         log.debug("Deleting some contact info for user {}...", userId);
         return ResponseEntity.ok(MappingUtils.mapToBankUserDTO(bankUserService.deleteContactInfo(userId, request)));
     }
 
     @PatchMapping("/{userId}/update-contact-info")
-    public ResponseEntity<BankUserDTO> updateContactInfo(@PathVariable Long userId, @RequestBody UpdateContactInfoRequest request) {
+    public ResponseEntity<BankUserDTO> updateContactInfo(@PathVariable Long userId,
+                                                         @RequestBody UpdateContactInfoRequest request) {
         log.debug("Updating contact info for user {}...", userId);
         return ResponseEntity.ok(MappingUtils.mapToBankUserDTO(bankUserService.updateContactInfo(userId, request)));
     }
 
     @PatchMapping("/{userId}/add-contact-info")
-    public ResponseEntity<BankUserDTO> addContactInfo(@PathVariable Long userId, @RequestBody AddDeleteContactInfoRequest request) {
+    public ResponseEntity<BankUserDTO> addContactInfo(@PathVariable Long userId,
+                                                      @RequestBody AddDeleteContactInfoRequest request) {
         log.debug("Adding new contact info for user {}...", userId);
         return ResponseEntity.ok(MappingUtils.mapToBankUserDTO(bankUserService.addContactInfo(userId, request)));
     }
