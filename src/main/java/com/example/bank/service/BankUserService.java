@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -24,16 +25,12 @@ import java.util.Set;
 @Slf4j
 @RequiredArgsConstructor
 @Service
-public class UserService {
-    private final UserRepository userRepository;
 public class BankUserService {
     private final BankUserRepository bankUserRepository;
     private final AccountRepository accountRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public BankUser registerUser(RegisterUserRequest request) {
-        userRepository.findByLogin(request.getLogin())
-                .ifPresent(u -> new IllegalArgumentException("User with login " + request.getLogin() + " already exists."));
-        userRepository.findByPhone(request.getPhone())
         bankUserRepository.findByLogin(request.getUsername())
                 .ifPresent(u -> new IllegalArgumentException("User with login " + request.getUsername() + " already exists."));
         bankUserRepository.findByPhone(request.getPhone())
@@ -42,8 +39,8 @@ public class BankUserService {
                 ifPresent(u -> new IllegalArgumentException("User with email " + request.getEmail() + " already exists."));
 
         BankUser newUser = BankUser.builder()
-                .login(request.getLogin())
-                .password(request.getPassword())
+                .login(request.getUsername())
+                .password(passwordEncoder.encode(request.getPassword()))
                 .fullName(request.getFullName())
                 .birthDate(request.getBirthDate())
                 .phoneNumbers(Set.of(request.getPhone()))

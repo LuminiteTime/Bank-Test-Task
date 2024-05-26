@@ -10,7 +10,7 @@ import java.time.LocalDate;
 @Getter
 public class RegisterUserRequest {
     @NotBlank
-    private String login;
+    private String username;
     @NotBlank
     private String password;
 

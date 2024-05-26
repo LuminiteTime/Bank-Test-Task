@@ -30,13 +30,7 @@ public class UserController {
     @GetMapping
     public ResponseEntity<List<BankUserDTO>> getAllUsers() {
         log.debug("Retrieving all users...");
-        return ResponseEntity.ok(userService.getAllUsers().stream().map(MappingUtils::mapToBankUserDTO).toList());
-    }
-
-    @PostMapping("/register")
-    public ResponseEntity<BankUserDTO> registerUser(@RequestBody RegisterUserRequest request) {
-        log.debug("Registering a new user...");
-        return ResponseEntity.ok(MappingUtils.mapToBankUserDTO(userService.registerUser(request)));
+        return ResponseEntity.ok(bankUserService.getAllUsers().stream().map(MappingUtils::mapToBankUserDTO).toList());
     }
 
     @DeleteMapping("/{userId}/contact-info")
@@ -81,6 +75,6 @@ public class UserController {
                                              @PathVariable Long userIdReceiver,
                                              @PathVariable BigDecimal amount) {
         log.debug("Transferring {} from user {} to user {}...", amount, userIdSender, userIdReceiver);
-        return ResponseEntity.ok(MappingUtils.mapToBankUserDTO(transactionService.transfer(userIdSender, userIdReceiver, amount)));
+        return ResponseEntity.ok(transactionService.transfer(userIdSender, userIdReceiver, amount));
     }
 }
