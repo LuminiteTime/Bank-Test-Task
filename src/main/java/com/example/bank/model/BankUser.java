@@ -12,6 +12,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Builder
+@Table(name = "bank_users")
 @Entity
 public class BankUser {
     @Id
@@ -23,9 +24,13 @@ public class BankUser {
     private LocalDate birthDate;
 
     @ElementCollection
+    @CollectionTable(name = "phone_numbers", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "phone_numbers")
     private Set<String> phoneNumbers = new HashSet<>();
 
     @ElementCollection
+    @CollectionTable(name = "email_addresses", joinColumns = @JoinColumn(name = "user_id"))
+    @Column(name = "email_addresses")
     private Set<String> emailAddresses = new HashSet<>();
 
     @OneToOne
