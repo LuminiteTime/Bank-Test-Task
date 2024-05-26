@@ -7,49 +7,34 @@ info:
     email: trifonov2812@gmail.com
   version: 0.0.1
 tags:
-  - name: User Controller
-    description: Operations with users
+  - name: Bank User Controller
+    description: Operations with bank users
+  - name: Auth Controller
+    description: Operations with authentication
 paths:
-  /api/users:
-    get:
+  /api/users/{userId}/contact-info/remove:
+    delete:
       tags:
-        - User Controller
-      summary: Retrieve all users
-      description: Allows to retrieve all users
-      responses:
-        200:
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/BankUserDTO'
-        500:
-          description: Internal server error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-              examples:
-                internalServerError:
-                  value:
-                    message: "Internal server error"
-                    status: 500
-    post:
-      tags:
-        - User Controller
-      summary: Register a new user
-      description: Allows to register a new user
+        - Bank User Controller
+      summary: Delete some contact info for a user
+      description: Allows to delete phone number(s) and/or email(s) for a user
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          description: User ID
+          schema:
+            type: integer
+            format: int64
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/RegisterUserRequest'
+              $ref: '#/components/schemas/AddDeleteContactInfoRequest'
       responses:
-        201:
-          description: User registered successfully
+        200:
+          description: OK
           content:
             application/json:
               schema:
@@ -76,12 +61,12 @@ paths:
                   value:
                     message: "Internal server error"
                     status: 500
-  /api/users/{userId}/contact-info:
-    delete:
+  /api/users/{userId}/contact-info/add:
+    patch:
       tags:
-        - User Controller
-      summary: Delete some contact info for a user
-      description: Allows to delete phone number(s) and/or email(s) for a user
+        - Bank User Controller
+      summary: Add new contact info for a user
+      description: Allows to add phone number(s) and/or email(s) for a user
       parameters:
         - in: path
           name: userId
@@ -95,8 +80,63 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/BankUserDTO'
+              $ref: '#/components/schemas/AddDeleteContactInfoRequest'
       responses:
+        200:
+            description: OK
+            content:
+                application/json:
+                  schema:
+                    $ref: '#/components/schemas/BankUserDTO'
+        400:
+          description: Bad request, invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                badRequest:
+                  value:
+                    message: "Bad request, invalid input"
+                    status: 400
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                internalServerError:
+                  value:
+                    message: "Internal server error"
+                    status: 500
+  /api/users/{userId}/contact-info/update:
+    patch:
+      tags:
+        - Bank User Controller
+      summary: Update contact info for a user
+      description: Allows to update phone number(s) and/or email(s) for a user
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          description: User ID
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateContactInfoRequest'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankUserDTO'
         400:
           description: Bad request, invalid input
           content:
@@ -122,7 +162,7 @@ paths:
   /api/users/search:
     get:
       tags:
-        - User Controller
+        - Bank User Controller
       summary: Search for users
       description: Allows to search for users with the specified parameters
       parameters:
@@ -203,6 +243,145 @@ paths:
                   value:
                     message: "Internal server error"
                     status: 500
+  /api/users/{userIdSender}/transfer-to/{userIdReceiver}/{amount}:
+    post:
+      tags:
+        - Bank User Controller
+      summary: Transfer money between users
+      description: Allows to transfer money between users
+      parameters:
+        - in: path
+          name: userIdSender
+          required: true
+          description: Id of the user sending the money
+          schema:
+            type: integer
+            format: int64
+        - in: path
+          name: userIdReceiver
+          required: true
+          description: Id of the user receiving the money
+          schema:
+            type: integer
+            format: int64
+        - in: path
+          name: amount
+          required: true
+          description: Amount of money to transfer
+          schema:
+            type: integer
+            format: int64
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankUserDTO'
+        400:
+          description: Bad request, invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                badRequest:
+                  value:
+                    message: "Bad request, invalid input"
+                    status: 400
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                internalServerError:
+                  value:
+                    message: "Internal server error"
+                    status: 500
+  /api/auth/register:
+    post:
+      tags:
+        - Auth Controller
+      summary: Register a new user
+      description: Allows to register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterUserRequest'
+      responses:
+        200:
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BankUserDTO'
+        400:
+          description: Bad request, invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                badRequest:
+                  value:
+                    message: "Bad request, invalid input"
+                    status: 400
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                internalServerError:
+                  value:
+                    message: "Internal server error"
+                    status: 500
+  /api/auth/login:
+    post:
+      tags:
+        - Auth Controller
+      summary: Login a user
+      description: Allows to login a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        200:
+          description: User logged in successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        400:
+          description: Bad request, invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                badRequest:
+                  value:
+                    message: "Bad request, invalid input"
+                    status: 400
+        500:
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              examples:
+                internalServerError:
+                  value:
+                    message: "Internal server error"
+                    status: 500
 components:
   schemas:
     BankUserDTO:
@@ -215,6 +394,10 @@ components:
         fullName:
           type: string
           description: Full name of the user
+        balance:
+          type: integer
+          format: int64
+          description: Balance of the user
         birthDate:
           type: string
           format: date
@@ -276,3 +459,57 @@ components:
         - initialBalance
         - phone
         - email
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          description: Username of the user
+        password:
+          type: string
+          description: Password of the user
+      required:
+        - username
+        - password
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          description: JWT token
+        tokenType:
+          type: string
+          default: "Bearer "
+          description: Type of the token
+    AddDeleteContactInfoRequest:
+      type: object
+      properties:
+        phoneNumbers:
+          type: array
+          items:
+            type: string
+          description: Phone numbers to add or delete
+        emailAddresses:
+          type: array
+          items:
+            type: string
+          description: Emails to add or delete
+    UpdateContactInfoRequest:
+      type: object
+      properties:
+        phoneNumbers:
+          type: object
+          additionalProperties:
+            type: string
+          description: Phone numbers to update
+          example:
+              "+79999999999": "+72345678901"
+              "+78888888888": "+79876543210"
+        emailAddresses:
+          type: object
+          additionalProperties:
+            type: string
+          description: Emails to update
+          example:
+              "mailToChange1@example.com": "mail@example.com"
+              "mailToChange2@example.com": "mail2@example.com"

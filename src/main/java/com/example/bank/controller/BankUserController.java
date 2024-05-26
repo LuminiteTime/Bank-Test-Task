@@ -27,21 +27,21 @@ public class BankUserController {
     private final BankUserService bankUserService;
     private final TransactionService transactionService;
 
-    @DeleteMapping("/{userId}/contact-info")
+    @DeleteMapping("/{userId}/contact-info/remove")
     public ResponseEntity<BankUserDTO> deleteContactInfo(@PathVariable Long userId,
                                                          @RequestBody AddDeleteContactInfoRequest request) {
         log.debug("Deleting some contact info for user {}...", userId);
         return ResponseEntity.ok(MappingUtils.mapToBankUserDTO(bankUserService.deleteContactInfo(userId, request)));
     }
 
-    @PatchMapping("/{userId}/update-contact-info")
+    @PatchMapping("/{userId}/contact-info/update")
     public ResponseEntity<BankUserDTO> updateContactInfo(@PathVariable Long userId,
                                                          @RequestBody UpdateContactInfoRequest request) {
         log.debug("Updating contact info for user {}...", userId);
         return ResponseEntity.ok(MappingUtils.mapToBankUserDTO(bankUserService.updateContactInfo(userId, request)));
     }
 
-    @PatchMapping("/{userId}/add-contact-info")
+    @PatchMapping("/{userId}/contact-info/add")
     public ResponseEntity<BankUserDTO> addContactInfo(@PathVariable Long userId,
                                                       @RequestBody AddDeleteContactInfoRequest request) {
         log.debug("Adding new contact info for user {}...", userId);
