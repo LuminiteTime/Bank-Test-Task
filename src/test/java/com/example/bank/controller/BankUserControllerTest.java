@@ -14,10 +14,10 @@ import java.math.BigDecimal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
-class UserControllerTest {
+class BankUserControllerTest {
 
     @InjectMocks
-    UserController userController;
+    BankUserController bankUserController;
 
     @Mock
     TransactionService transactionService;
@@ -51,7 +51,7 @@ class UserControllerTest {
 
         when(transactionService.transfer(senderId, receiverId, amount)).thenReturn(senderAfterTransfer);
 
-        ResponseEntity<BankUserDTO> response = userController.transfer(senderId, receiverId, amount);
+        ResponseEntity<BankUserDTO> response = bankUserController.transfer(senderId, receiverId, amount);
 
         assertEquals(200, response.getStatusCodeValue());
         assertEquals(senderAfterTransfer, response.getBody());

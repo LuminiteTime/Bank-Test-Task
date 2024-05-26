@@ -23,30 +23,27 @@ import java.util.List;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/users")
-public class UserController {
+public class BankUserController {
     private final BankUserService bankUserService;
     private final TransactionService transactionService;
 
-    @GetMapping
-    public ResponseEntity<List<BankUserDTO>> getAllUsers() {
-        log.debug("Retrieving all users...");
-        return ResponseEntity.ok(bankUserService.getAllUsers().stream().map(MappingUtils::mapToBankUserDTO).toList());
-    }
-
-    @DeleteMapping("/{userId}/contact-info")
-    public ResponseEntity<BankUserDTO> deleteContactInfo(@PathVariable Long userId, @RequestBody AddDeleteContactInfoRequest request) {
+    @DeleteMapping("/{userId}/contact-info/remove")
+    public ResponseEntity<BankUserDTO> deleteContactInfo(@PathVariable Long userId,
+                                                         @RequestBody AddDeleteContactInfoRequest request) {
         log.debug("Deleting some contact info for user {}...", userId);
         return ResponseEntity.ok(MappingUtils.mapToBankUserDTO(bankUserService.deleteContactInfo(userId, request)));
     }
 
-    @PatchMapping("/{userId}/update-contact-info")
-    public ResponseEntity<BankUserDTO> updateContactInfo(@PathVariable Long userId, @RequestBody UpdateContactInfoRequest request) {
+    @PatchMapping("/{userId}/contact-info/update")
+    public ResponseEntity<BankUserDTO> updateContactInfo(@PathVariable Long userId,
+                                                         @RequestBody UpdateContactInfoRequest request) {
         log.debug("Updating contact info for user {}...", userId);
         return ResponseEntity.ok(MappingUtils.mapToBankUserDTO(bankUserService.updateContactInfo(userId, request)));
     }
 
-    @PatchMapping("/{userId}/add-contact-info")
-    public ResponseEntity<BankUserDTO> addContactInfo(@PathVariable Long userId, @RequestBody AddDeleteContactInfoRequest request) {
+    @PatchMapping("/{userId}/contact-info/add")
+    public ResponseEntity<BankUserDTO> addContactInfo(@PathVariable Long userId,
+                                                      @RequestBody AddDeleteContactInfoRequest request) {
         log.debug("Adding new contact info for user {}...", userId);
         return ResponseEntity.ok(MappingUtils.mapToBankUserDTO(bankUserService.addContactInfo(userId, request)));
     }
