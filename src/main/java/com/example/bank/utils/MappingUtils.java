@@ -12,6 +12,7 @@ public class MappingUtils {
                 .id(user.getId())
                 .fullName(user.getFullName())
                 .birthDate(user.getBirthDate())
+                .balance(user.getAccount().getBalance())
                 .phoneNumbers(user.getPhoneNumbers())
                 .emailAddresses(user.getEmailAddresses())
                 .build();
