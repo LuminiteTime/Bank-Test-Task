@@ -27,12 +27,6 @@ public class BankUserController {
     private final BankUserService bankUserService;
     private final TransactionService transactionService;
 
-    @GetMapping
-    public ResponseEntity<List<BankUserDTO>> getAllUsers() {
-        log.debug("Retrieving all users...");
-        return ResponseEntity.ok(bankUserService.getAllUsers().stream().map(MappingUtils::mapToBankUserDTO).toList());
-    }
-
     @DeleteMapping("/{userId}/contact-info")
     public ResponseEntity<BankUserDTO> deleteContactInfo(@PathVariable Long userId,
                                                          @RequestBody AddDeleteContactInfoRequest request) {

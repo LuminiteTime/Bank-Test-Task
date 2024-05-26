@@ -185,16 +185,7 @@ public class BankUserService {
         return user;
     }
 
-    public List<BankUser> getAllUsers() {
-        return bankUserRepository.findAll();
-    }
-
     public Page<BankUser> searchUsers(LocalDate birthDate, String phone, String fullName, String email, Pageable pageable) {
         return bankUserRepository.findAll(UserSpecification.filterUsers(birthDate, phone, fullName, email), pageable);
-    }
-
-    public BankUserDTO getUserById(Long userId) {
-        return MappingUtils.mapToBankUserDTO(bankUserRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException(userId)));
     }
 }
