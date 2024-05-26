@@ -1,6 +1,7 @@
 package com.example.bank.service;
 
 import com.example.bank.dto.AddDeleteContactInfoRequest;
+import com.example.bank.dto.BankUserDTO;
 import com.example.bank.dto.RegisterUserRequest;
 import com.example.bank.dto.UpdateContactInfoRequest;
 import com.example.bank.exception.UserNotFoundException;
